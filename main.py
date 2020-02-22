@@ -1,4 +1,5 @@
 import random
+from numpy import rnorm
 from strategies import *
 
 
@@ -106,6 +107,10 @@ class Journal(Player):
         self.update_status(article, False)
         article.author.receive_response(self, False)
         return False
+        
+    def evaluate_article_quality(self, article):
+        evaluation_error = 10 / self.discernment
+        return rnorm(article.quality, evaluation_error)
     
     def receive_article(self, article, expedited = False):
         "receive an article and add it into consideration queue.  possibly consider immediately, possibly batch-consider, depending on strategy"
@@ -114,7 +119,8 @@ class Journal(Player):
                 if submission["article"] == article:
                     submission.expedited = True
         else:
-            self.submissions.append({"article": article, "accepted": None, "expedited": False})  # accepted = None signifies not considered yet
+            perceived_quality = self.evaluate_article_quality(article)
+            self.submissions.append({"article": article, "accepted": None, "expedited": False, "perceived_quality" = perceived_quality})  # accepted = None signifies not considered yet
         if self.strategy.should_consider(article, self.submissions):
             self.consider(article, expedited)
             
