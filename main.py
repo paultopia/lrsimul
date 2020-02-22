@@ -48,15 +48,26 @@ class Author(Player):
         if self.article.quality > self.prestige:
             self.article.quality = self.article.quality - ((self.article.quality - self.prestige) / self.adjustment_factor)
             
-    def submit(self, journal, expedited = False):  # consult strategy and decide whether to submit to a journal.  probably also make a list of which journals have been sumbitted to etc.  also to be called by receipt method as an expedite
+    def submit(self, journal):  
+        "consult strategy and decide whether to submit to a journal."
         if self.strategy.should_submit(journal, article):
-            journal.receive_article(self.article, expedited)
-            article.submissions.append({"journal": journal, "expedited": expedited, "accepted": None})
+            journal.receive_article(self.article, expedited=False)
+            article.submissions.append({"journal": journal, "expedited": False, "accepted": None})
             
     def receive_response(self, journal, accepted):
         "handle response from journal"
         pass
         # TODO
+        
+    def expedite(self, journal):
+        "checks to see if should expedite at test_journal given acceptance at accepted_journal"
+        if self.strategy.should_expedite(test_journal, self.article, accepted_journal):
+            test_journal.receive_article(self.article, expedited=True)
+            for submission in article.submissions:
+                if submission["journal"] == test_journal:
+                    submission["expedited"] = True
+
+# should figure out a way for their to be time limits on offers... represented as number of rounds limits?
         
 
         
